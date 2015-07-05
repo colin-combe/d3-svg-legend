@@ -29,18 +29,18 @@ d3.svg.legend = function() {
                 .attr(dim)
         };
 
-        drag = d3.behavior.drag()
-            .on("drag", function(d,i) {
-                console.log(this);
-                d.x += d3.event.dx;
-                d.y += d3.event.dy;
-                d3.select(this).attr("transform", function(d,i){
-                    return "translate(" + [ d.x,d.y ] + ")"
-                })
-            })
-            .on("dragstart", function() {
-                d3.event.sourceEvent.stopPropagation(); // silence other listeners
-            });
+        //~ drag = d3.behavior.drag()
+            //~ .on("drag", function(d,i) {
+                //~ console.log(this);
+                //~ d.x += d3.event.dx;
+                //~ d.y += d3.event.dy;
+                //~ d3.select(this).attr("transform", function(d,i){
+                    //~ return "translate(" + [ d.x,d.y ] + ")"
+                //~ })
+            //~ })
+            //~ .on("dragstart", function() {
+                //~ d3.event.sourceEvent.stopPropagation(); // silence other listeners
+            //~ });
 
         function init() {
             var mutLegendGroup = svg.append("g")
@@ -79,7 +79,19 @@ d3.svg.legend = function() {
 
 
             legend.target.selectAll("g.legendCells").data(legendValues).exit().remove();
-            legend.target.selectAll("g.legendCells").select("rect").style("fill", function(d) {return d.color});
+            legend.target.selectAll("g.legendCells").select("rect").style("fill", function(d) {
+				var temp = new RGBColor(d.color);
+				//~ var trans = new RGBColor("rgba(" +temp.r+","+temp.g+","+temp.b+ ", 0.6)");
+				
+												var opaque = new RGBColor("");;
+								opaque.r = ((1 - 0.6) * 1) + (0.6 * (temp.r / 255));
+								opaque.g = ((1 - 0.6) * 1) + (0.6 * (temp.g / 255));
+								opaque.b = ((1 - 0.6) * 1) + (0.6 * (temp.b / 255));
+				
+				var col = "rgb(" +Math.floor(opaque.r * 255 ) +","
+									+ Math.floor(opaque.g * 255) +","+Math.floor(opaque.b * 255)+ ")";
+							
+				return col});
             if (orientation == "vertical") {
                 legend.target.selectAll("g.legendCells").select("text.breakLabels").style("display", "block").style("text-anchor", "start").attr("x", cellWidth + cellPadding).attr("y", 5 + (cellHeight / 2)).text(function(d) {return labelFormat(d.stop[0]) + (d.stop[1].length > 0 ? " - " + labelFormat(d.stop[1]) : "")})
                 legend.target.selectAll("g.legendCells").attr("transform", function(d,i) {return "translate(0," + (i * (cellHeight + cellPadding)) + ")" });
@@ -95,7 +107,7 @@ d3.svg.legend = function() {
             var initObj = init();
             legend.target = initObj.target;
             legend.parentGroup = initObj.parentGroup;
-            legend.parentGroup.call(drag);
+            //~ legend.parentGroup.call(drag);
             legend.initDone = true;
         }
 
@@ -118,8 +130,25 @@ d3.svg.legend = function() {
             .attr("class", "breakRect")
             .attr("height", cellHeight)
             .attr("width", cellWidth)
-            .style("fill", function(d) {return d.color})
-            .style("stroke", function(d) {return d3.rgb(d.color).darker();});
+            .style("fill", function(d) {
+				
+				//~ var temp = new RGBColor(d.color);
+				//Target.R = ((1 - Source.A) * BGColor.R) + (Source.A * Source.R)
+				//Target.G = ((1 - Source.A) * BGColor.G) + (Source.A * Source.G)
+				//Target.B = ((1 - Source.A) * BGColor.B) + (Source.A * Source.B)
+				//~ var opaque = {};
+				//~ opaque.r = ((1 - 0.6) * 1) + (0.6 * (temp.r / 255));
+				//~ opaque.g = ((1 - 0.6) * 1) + (0.6 * (temp.g / 255))
+				//~ opaque.b = ((1 - 0.6) * 1) + (0.6 * (temp.b / 255))
+				//~ var col = "rgb(" +Math.floor(opaque.r * 255 ) +","
+											//~ + Math.floor(opaque.g * 255) +","+Math.floor(opaque.b * 255)+ ")";
+				var temp = new RGBColor(d.color);
+				var trans = "rgba(" +temp.r+","+temp.g+","+temp.b+ ", 0.6)"
+											
+				
+				return trans}
+			)
+            .style("stroke", function(d) {return d3.rgb(d.color);});
 
         legend.target.selectAll("g.legendCells")
             .append("text")
